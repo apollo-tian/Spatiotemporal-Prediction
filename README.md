@@ -1,4 +1,4 @@
-<p align="center" style="font-size: 2em; font-weight: bolder">Spatiotemporal-Prediction</p>
+<p align="center"><font size="6">Spatiotemporal-Prediction</font></p>
 
 <p align="center">
     <img src="https://img.shields.io/github/license/dreaming-coder/Spatiotemporal-Prediction">
