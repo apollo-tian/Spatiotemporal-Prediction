@@ -24,22 +24,22 @@ This class inherits from `torch.nn.Module` with some additional aspect methods t
 validation or test loop while the repeatable blocks are packaged in the `Trainer` class. The additional methods you may
 need to override is shown as the following:
 
-- `configure_optimizer`
-- `configure_lr_scheduler`
-- `training_step`
-- `training_step_end`
-- `training_epoch_end`
-- `validation_step`
-- `validation_step_end`
-- `validation_epoch_end`
-- `predict_step`
+- `configure_optimizer()`
+- `configure_lr_scheduler()`
+- `training_step()`
+- `training_step_end()`
+- `training_epoch_end()`
+- `validation_step()`
+- `validation_step_end()`
+- `validation_epoch_end()`
+- `predict_step()`
 
 > See details in the source code and examples.
 
 ### Trainer
 
-The `Trainer` class just provide 2 function: `fit` to train and valid dataset and `predict` to generate the outputs
-by the convergent network. Specially, the main process in `fit` is shown below.
+The `Trainer` class just provide 2 functions: `fit()` to train and valid dataset and `predict()` to generate the outputs
+by the convergent network. Specially, the main process in `fit()` is shown below.
 <p align="center">
     <img src="resources/imgs/trainer-process.png" />
 </p>
