@@ -5,9 +5,10 @@ import torch
 import torch.nn.functional as F
 from torch import nn, Tensor
 from torch.optim import Optimizer
+from torch.optim.lr_scheduler import ExponentialLR
 
 from utils import reshape_patch, reshape_patch_back
-from utils.types import STEP_OUTPUT
+from utils.types import STEP_OUTPUT, Scheduler
 from .ConvLSTMCell import ConvLSTMCell
 from .. import EnhancedModule
 
@@ -43,8 +44,12 @@ class ConvLSTM(EnhancedModule, metaclass=abc.ABCMeta):
 
 class ConvLSTM_MovingMNIST(ConvLSTM):
     def configure_optimizer(self) -> Optimizer:
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
+
+    def configure_lr_scheduler(self, optimizer: Optimizer) -> Scheduler:
+        lr_scheduler = ExponentialLR(optimizer, gamma=0.9)
+        return lr_scheduler
 
     def training_step(self, inputs, labels) -> STEP_OUTPUT:
         patched_inputs = reshape_patch(inputs, patch_size=4)
