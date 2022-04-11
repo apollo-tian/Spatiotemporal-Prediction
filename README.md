@@ -44,4 +44,13 @@ by the convergent network. Specially, the main process in `fit()` is shown below
     <img src="resources/imgs/trainer-process.png" />
 </p>
 
-##         
+## Tools
+
+### patch
+
+This trick was proposed first by Xing Jian Shi in his paper _Convolutional LSTM Network: A Machine Learning Approach for
+Precipitation Nowcasting-NIPS15_convLSTM_. It helps reduce the usage of Video Memory in order to train more samples in
+each batch. The following shows how it works.
+<p align="center">
+    <img src="resources/imgs/patchs.png" />
+</p>
