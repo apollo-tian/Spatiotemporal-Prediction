@@ -3,8 +3,9 @@
 # @time: 2022/4/10 18:27
 # @author: 芜情
 # @description:
-from .ConvLSTM import ConvLSTM
+from .ConvLSTM import ConvLSTM, ConvLSTM_MovingMNIST
 
 __all__ = [
-    "ConvLSTM"
+    "ConvLSTM",
+    "ConvLSTM_MovingMNIST",
 ]

@@ -1,3 +1,4 @@
+import abc
 from typing import List, Tuple, Optional
 
 import torch
@@ -5,15 +6,19 @@ import torch.nn.functional as F
 from torch import nn, Tensor
 from torch.optim import Optimizer
 
+from utils import reshape_patch, reshape_patch_back
 from utils.types import STEP_OUTPUT
 from .ConvLSTMCell import ConvLSTMCell
 from .. import EnhancedModule
 
-__all__ = ["ConvLSTM"]
+__all__ = [
+    "ConvLSTM",
+    "ConvLSTM_MovingMNIST",
+]
 
 
-class ConvLSTM(EnhancedModule):
-    def __init__(self, in_channels: int = 1, hidden_channels_list=None, size: Tuple[int, int] = (100, 100),
+class ConvLSTM(EnhancedModule, metaclass=abc.ABCMeta):
+    def __init__(self, in_channels: int = 1, hidden_channels_list=None, size: Tuple[int, int] = (64, 64),
                  kernel_size_list=None, forget_bias: float = 0.01):
         super().__init__()
         if hidden_channels_list is None:
@@ -35,22 +40,30 @@ class ConvLSTM(EnhancedModule):
 
         return prediction
 
+
+class ConvLSTM_MovingMNIST(ConvLSTM):
     def configure_optimizer(self) -> Optimizer:
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
         return optimizer
 
     def training_step(self, inputs, labels) -> STEP_OUTPUT:
-        outputs = self.forward(inputs, out_len=10)
+        patched_inputs = reshape_patch(inputs, patch_size=4)
+        patched_outputs = self.forward(patched_inputs, out_len=10)
+        outputs = reshape_patch_back(patched_outputs, patch_size=4)
         loss = F.mse_loss(outputs, labels)
         return loss
 
     def validation_step(self, inputs, labels) -> Optional[STEP_OUTPUT]:
-        outputs = self.forward(inputs, out_len=10)
+        patched_inputs = reshape_patch(inputs, patch_size=4)
+        patched_outputs = self.forward(patched_inputs, out_len=10)
+        outputs = reshape_patch_back(patched_outputs, patch_size=4)
         loss = F.mse_loss(outputs, labels)
         return loss
 
     def predict_step(self, inputs, labels) -> Tensor:
-        outputs = self.forward(inputs, out_len=10)
+        patched_inputs = reshape_patch(inputs, patch_size=4)
+        patched_outputs = self.forward(patched_inputs, out_len=10)
+        outputs = reshape_patch_back(patched_outputs, patch_size=4)
         return outputs
 
 
