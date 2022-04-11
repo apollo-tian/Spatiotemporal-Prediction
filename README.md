@@ -1,8 +1,8 @@
 # Spatiotemporal-Prediction
 
 <p align="center">
-    <img src="https://img.shields.io/github/license/dreaming-coder/Spatiotemporal-Prediction">
-    <img alt="AUR maintainer" src="https://img.shields.io/aur/maintainer/Spatiotemporal-Prediction">
+    <img alt="GitHub" src="https://img.shields.io/github/license/dreaming-coder/Spatiotemporal-Prediction">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/dreaming-coder/Spatiotemporal-Prediction">
     <img src="https://img.shields.io/github/stars/dreaming-coder/Spatiotemporal-Prediction?style=social" alt="github star"/>
     <img alt="GitHub forks" src="https://img.shields.io/github/forks/dreaming-coder/Spatiotemporal-Prediction?style=social">
 </p>
