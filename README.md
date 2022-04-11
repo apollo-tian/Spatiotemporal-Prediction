@@ -38,8 +38,10 @@ need to override is shown as the following:
 
 ### Trainer
 
-The `Trainer` class just provide $2$ function: `fit()` to train and valid dataset and `predict` to generate the outputs
-by the convergent network. Specially, the main process in `fit()` is shown below.
-
+The `Trainer` class just provide $2$ function: `fit` to train and valid dataset and `predict` to generate the outputs
+by the convergent network. Specially, the main process in `fit` is shown below.
+<p align="center">
+    <img src="resources/imgs/trainer-process.png" />
+</p>
 
 ##         
