@@ -11,8 +11,6 @@ from torch import Tensor
 from torch.utils.data import DataLoader
 
 from nn import EnhancedModule
-from nn.QPENet import QPENet
-from utils.trainer.TestDataset import TestDataset
 from utils.trainer.file_monitor import CheckpointMonitor
 from utils.trainer.module_helpers import is_overridden
 from utils.trainer.progress_bar import progress_bar
@@ -53,7 +51,6 @@ class Trainer(object):
             if "lr_scheduler" in checkpoint and model.lr_scheduler is not None:
                 model.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
 
-        model.train()
         model.to(self.device)
         total_per_epoch = len(train_loader)
 
@@ -62,6 +59,7 @@ class Trainer(object):
         for epoch in range(start_epoch, self.max_epoch + 1):
 
             # training loop
+            model.train()
             training_epoch_outputs = []
 
             for batch_index, (inputs, labels) in enumerate(train_loader):
@@ -99,6 +97,7 @@ class Trainer(object):
             training_epoch_outputs.clear()
 
             # validation loop
+            model.eval()
             validation_epoch_outputs = []
             loss_list = []
 
@@ -171,7 +170,7 @@ class Trainer(object):
 
         # test loop
         total_outputs = []
-        total_per_epoch = len(train_loader)
+        total_per_epoch = len(test_loader)
         for batch_index, (inputs, labels) in enumerate(test_loader):
             inputs = inputs.to(self.device)
             labels = labels.to(self.device)
@@ -187,16 +186,3 @@ class Trainer(object):
         torch.save(prediction, f=self.to_save + "/prediction.pth")
 
         sys.stdout.write(f"\r\33[94m处理完毕 {progress_bar(total_per_epoch, total_per_epoch)}\33[0m")
-
-
-if __name__ == '__main__':
-    net = QPENet()
-    dataset = TestDataset("qpe")
-    train_loader = DataLoader(dataset, batch_size=4)
-    validation_loader = DataLoader(dataset, batch_size=3)
-
-    trainer = Trainer(max_epoch=3, to_save="../data")
-
-    # trainer.fit(net, train_loader=train_loader, validation_loader=validation_loader)
-
-    trainer.predict(model=net, test_loader=train_loader, ckpt_path="../data/checkpoint_000003_0.085735_temp.pth")

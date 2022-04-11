@@ -4,6 +4,8 @@
 # @author: 芜情
 # @description:
 import shutil
+import sys
+import time
 from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
@@ -28,6 +30,7 @@ class FileEventHandler(FileSystemEventHandler):
 
     # noinspection PyShadowingNames
     def on_created(self, event):
+
         files = list(self.src_path.glob("checkpoint*"))
         if len(files) == 0:
             return
@@ -44,19 +47,21 @@ class FileEventHandler(FileSystemEventHandler):
             if cur_best_loss in file.name and cur_best_loss < pre_best_loss:
                 shutil.move(file, self.dest_path.joinpath(file.name))
             else:
-                file.unlink()
+                try:
+                    file.unlink()
+                except PermissionError:
+                    time.sleep(0.5)
+                    file.unlink()
 
 
 class CheckpointMonitor(object):
 
     def __init__(self, src_path: str, dest_path: str):
-        self.src_path = src_path
-        self.dest_path = dest_path
+        self.event_handler = FileEventHandler(src_path, dest_path)
         self.observer = Observer(timeout=300)
+        self.observer.schedule(self.event_handler, src_path)
 
     def start(self):
-        event_handler = FileEventHandler(self.src_path, self.dest_path)
-        self.observer.schedule(event_handler, self.src_path)
         self.observer.start()
 
     def stop(self):
