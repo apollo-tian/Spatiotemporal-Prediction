@@ -3,6 +3,7 @@
 # @time: 2022/4/11 13:46
 # @author: 芜情
 # @description: Moving Mnist dataset
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -19,24 +20,22 @@ class MovingMNISTDataset(Dataset):
 
     def __init__(self, dataset: str):
         if dataset == "train":
-            data = np.load(MovingMNIST + r"\moving-mnist-train.npz")
+            self.dataset_dir = Path(MovingMNIST + r"\train")
         elif dataset == "validation":
-            data = np.load(MovingMNIST + r"\moving-mnist-valid.npz")
+            self.dataset_dir = Path(MovingMNIST + r"\validation")
         elif dataset == "test":
-            data = np.load(MovingMNIST + r"\moving-mnist-test.npz")
+            self.dataset_dir = Path(MovingMNIST + r"\test")
         else:
-            raise FileNotFoundError(f"the dataset {dataset} in Moving MNIST doesn't exist.")
+            raise FileNotFoundError(f"\nthe dataset {dataset} in Moving MNIST doesn't exist.\n")
 
-        self.clips = data["clips"]
-        self.dataset = data["input_raw_data"]
+        self.__len = len(list(self.dataset_dir.glob("*.npz")))
 
     def __getitem__(self, index: int) -> Tuple[Tensor, Tensor]:
-        clips = self.clips[:, index, ...]
-        input_start, input_len = clips[0]
-        labels_start, labels_len = clips[1]
+        example_path = str(self.dataset_dir.joinpath(f"example{index + 1:06d}.npz"))
+        dataset = np.load(example_path)
 
-        inputs = self.dataset[input_start:input_start + input_len]
-        labels = self.dataset[labels_start:labels_start + labels_len]
+        inputs = dataset["inputs"]
+        labels = dataset["labels"]
 
         inputs = torch.from_numpy(inputs)
         labels = torch.from_numpy(labels)
@@ -44,4 +43,4 @@ class MovingMNISTDataset(Dataset):
         return inputs, labels
 
     def __len__(self):
-        return self.clips.shape[1]
+        return self.__len
