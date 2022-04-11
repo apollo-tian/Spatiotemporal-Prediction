@@ -52,5 +52,5 @@ This trick was proposed first by Xing Jian Shi in his paper _Convolutional LSTM 
 Precipitation Nowcasting-NIPS15_convLSTM_. It helps reduce the usage of Video Memory in order to train more samples in
 each batch. The following shows how it works.
 <p align="center">
-    <img src="resources/imgs/patchs.png" />
+    <img src="resources/imgs/patch.png" />
 </p>
