@@ -52,6 +52,7 @@ class ConvLSTM_MovingMNIST(ConvLSTM):
         return lr_scheduler
 
     def training_step(self, inputs, labels) -> STEP_OUTPUT:
+        inputs, labels = inputs / 255.0, labels / 255.0
         patched_inputs = reshape_patch(inputs, patch_size=4)
         patched_outputs = self.forward(patched_inputs, out_len=10)
         outputs = reshape_patch_back(patched_outputs, patch_size=4)
@@ -59,6 +60,7 @@ class ConvLSTM_MovingMNIST(ConvLSTM):
         return loss
 
     def validation_step(self, inputs, labels) -> Optional[STEP_OUTPUT]:
+        inputs, labels = inputs / 255.0, labels / 255.0
         patched_inputs = reshape_patch(inputs, patch_size=4)
         patched_outputs = self.forward(patched_inputs, out_len=10)
         outputs = reshape_patch_back(patched_outputs, patch_size=4)
@@ -66,9 +68,11 @@ class ConvLSTM_MovingMNIST(ConvLSTM):
         return loss
 
     def predict_step(self, inputs, labels) -> Tensor:
+        inputs = inputs / 255.0
         patched_inputs = reshape_patch(inputs, patch_size=4)
         patched_outputs = self.forward(patched_inputs, out_len=10)
         outputs = reshape_patch_back(patched_outputs, patch_size=4)
+        outputs = outputs * 255.0
         return outputs
 
 
