@@ -57,11 +57,13 @@ class FileEventHandler(FileSystemEventHandler):
 class CheckpointMonitor(object):
 
     def __init__(self, src_path: str, dest_path: str):
-        self.event_handler = FileEventHandler(src_path, dest_path)
+        self.src_path = src_path
+        self.dest_path = dest_path
         self.observer = Observer(timeout=300)
-        self.observer.schedule(self.event_handler, src_path)
 
     def start(self):
+        event_handler = FileEventHandler(self.src_path, self.dest_path)
+        self.observer.schedule(event_handler, self.src_path)
         self.observer.start()
 
     def stop(self):
