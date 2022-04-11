@@ -34,7 +34,7 @@ need to override is shown as the following:
 - `validation_epoch_end`
 - `predict_step`
 
-> See details in source code and examples.
+> See details in the source code and examples.
 
 ### Trainer
 
