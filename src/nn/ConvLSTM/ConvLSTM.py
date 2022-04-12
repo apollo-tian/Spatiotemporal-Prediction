@@ -36,9 +36,7 @@ class ConvLSTM(EnhancedModule, metaclass=abc.ABCMeta):
     # just for test
     def forward(self, inputs: Tensor, out_len: int = 10) -> Tensor:
         states = self.encoder(inputs)
-
         prediction = self.forecast(*states, out_len=out_len)
-
         return prediction
 
 
@@ -52,6 +50,7 @@ class ConvLSTM_MovingMNIST(ConvLSTM):
         return lr_scheduler
 
     def training_step(self, inputs, labels) -> STEP_OUTPUT:
+
         inputs, labels = inputs / 255.0, labels / 255.0
         patched_inputs = reshape_patch(inputs, patch_size=4)
         patched_outputs = self.forward(patched_inputs, out_len=10)
