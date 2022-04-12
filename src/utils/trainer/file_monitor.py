@@ -14,6 +14,14 @@ from watchdog.observers import Observer
 __all__ = ["CheckpointMonitor"]
 
 
+def process(file: Path):
+    try:
+        file.unlink()
+    except PermissionError:
+        time.sleep(1)
+        process(file)
+
+
 class FileEventHandler(FileSystemEventHandler):
 
     def __init__(self, src_path: str, dest_path: str):
@@ -47,11 +55,7 @@ class FileEventHandler(FileSystemEventHandler):
             if cur_best_loss in file.name and cur_best_loss < pre_best_loss:
                 shutil.move(file, self.dest_path.joinpath(file.name))
             else:
-                try:
-                    file.unlink()
-                except PermissionError:
-                    time.sleep(0.5)
-                    file.unlink()
+                process(file)
 
 
 class CheckpointMonitor(object):
