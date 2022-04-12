@@ -43,6 +43,10 @@ class Trainer(object):
             ckpt_path: Optional[str] = None
     ):
         start_epoch = 1
+        model.optimizer = model.configure_optimizer()
+        model.lr_scheduler = model.configure_lr_scheduler(model.optimizer)
+        model.to(self.device)
+
         if ckpt_path is not None:
             checkpoint = torch.load(ckpt_path, map_location=self.device)
             model.load_state_dict(checkpoint["state_dict"])
@@ -50,9 +54,7 @@ class Trainer(object):
             model.optimizer.load_state_dict(checkpoint["optimizer"])
             if "lr_scheduler" in checkpoint and model.lr_scheduler is not None:
                 model.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
-        model.optimizer = model.configure_optimizer()
-        model.lr_scheduler = model.configure_lr_scheduler(model.optimizer)
-        model.to(self.device)
+
         total_per_epoch = len(train_loader)
 
         self.monitor.start()
