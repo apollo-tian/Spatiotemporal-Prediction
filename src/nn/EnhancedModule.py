@@ -5,12 +5,12 @@
 # @description: the enhancement of torch.nn.Module
 import abc
 from abc import abstractmethod
-from typing import Union, List, Optional
+from typing import Optional
 
 from torch import nn, Tensor
 from torch.optim import Optimizer
 
-from utils.types import STEP_OUTPUT, EPOCH_OUTPUT, Scheduler
+from utils.types import STEP_OUTPUT, Scheduler
 
 __all__ = ["EnhancedModule"]
 
@@ -20,14 +20,8 @@ class EnhancedModule(nn.Module, metaclass=abc.ABCMeta):
 
     def __init__(self):
         super(EnhancedModule, self).__init__()
-
-    @property
-    def optimizer(self) -> Optimizer:
-        return self.configure_optimizer()
-
-    @property
-    def lr_scheduler(self) -> Optimizer:
-        return self.configure_lr_scheduler(self.optimizer)
+        self.optimizer = None
+        self.lr_scheduler = None
 
     @abstractmethod
     def configure_optimizer(self) -> Optimizer: ...
@@ -55,27 +49,27 @@ class EnhancedModule(nn.Module, metaclass=abc.ABCMeta):
                 return loss
         """
 
-    def training_epoch_end(self, step_output: EPOCH_OUTPUT) -> None:
-        r"""
-        Called at the end of the training epoch with the outputs of all training steps. Use this in case you
-        need to do something with all the outputs returned by training_step.
-
-        Args:
-            outputs: List of outputs you defined in training_step.
-
-        Return:
-            None
-
-        Example:
-            train_outs = []
-            for train_batch in train_data:
-                out = training_step(train_batch)
-                train_outs.append(out)
-            training_epoch_end(train_outs)
-
-        Note:
-            If this method is not overridden, this won't be called.
-        """
+    # def training_epoch_end(self, step_output: EPOCH_OUTPUT) -> None:
+    #     r"""
+    #     Called at the end of the training epoch with the outputs of all training steps. Use this in case you
+    #     need to do something with all the outputs returned by training_step.
+    #
+    #     Args:
+    #         outputs: List of outputs you defined in training_step.
+    #
+    #     Return:
+    #         None
+    #
+    #     Example:
+    #         train_outs = []
+    #         for train_batch in train_data:
+    #             out = training_step(train_batch)
+    #             train_outs.append(out)
+    #         training_epoch_end(train_outs)
+    #
+    #     Note:
+    #         If this method is not overridden, this won't be called.
+    #     """
 
     def training_step_end(self, step_output: STEP_OUTPUT) -> STEP_OUTPUT:
         r"""
@@ -94,10 +88,10 @@ class EnhancedModule(nn.Module, metaclass=abc.ABCMeta):
         see also training_step, this is used to valid the effectiveness of the model.
         """
 
-    def validation_epoch_end(self, outputs: Union[EPOCH_OUTPUT, List[EPOCH_OUTPUT]]) -> None:
-        r"""
-        see also training_epoch_end, this is used to do some work at the end of validation step
-        """
+    # def validation_epoch_end(self, outputs: Union[EPOCH_OUTPUT, List[EPOCH_OUTPUT]]) -> None:
+    #     r"""
+    #     see also training_epoch_end, this is used to do some work at the end of validation step
+    #     """
 
     def validation_step_end(self, *args, **kwargs) -> Optional[STEP_OUTPUT]:
         r"""
