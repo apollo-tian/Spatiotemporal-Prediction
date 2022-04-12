@@ -28,10 +28,8 @@ need to override is shown as the following:
 - `configure_lr_scheduler()`
 - `training_step()`
 - `training_step_end()`
-- `training_epoch_end()`
 - `validation_step()`
 - `validation_step_end()`
-- `validation_epoch_end()`
 - `predict_step()`
 
 > See details in the source code and examples.
