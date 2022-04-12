@@ -50,7 +50,8 @@ class Trainer(object):
             model.optimizer.load_state_dict(checkpoint["optimizer"])
             if "lr_scheduler" in checkpoint and model.lr_scheduler is not None:
                 model.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
-
+        model.optimizer = model.configure_optimizer()
+        model.lr_scheduler = model.configure_lr_scheduler(model.optimizer)
         model.to(self.device)
         total_per_epoch = len(train_loader)
 
@@ -60,7 +61,6 @@ class Trainer(object):
 
             # training loop
             model.train()
-            training_epoch_outputs = []
 
             for batch_index, (inputs, labels) in enumerate(train_loader):
                 inputs = inputs.to(self.device)
@@ -69,7 +69,6 @@ class Trainer(object):
                 model.optimizer.zero_grad(set_to_none=True)
 
                 training_outs = model.training_step(inputs, labels)
-                training_epoch_outputs.append(training_outs)
                 if is_overridden("training_step_end", model):
                     training_outs = model.training_step_end(training_outs)
 
@@ -85,50 +84,39 @@ class Trainer(object):
 
                 # update the optimizer
                 model.optimizer_step()
-
                 # update the learning rate
                 model.lr_scheduler_step()
 
                 sys.stdout.write(f"\r\33[36mEpoch {epoch:06d} {progress_bar(batch_index + 1, total_per_epoch)}\33[0m")
                 sys.stdout.flush()
 
-            if is_overridden("training_epoch_end", model):
-                model.training_epoch_end(training_epoch_outputs)
-            training_epoch_outputs.clear()
+            torch.cuda.empty_cache()
 
             # validation loop
             model.eval()
-            validation_epoch_outputs = []
-            loss_list = []
+            mean_loss = 0.0
 
-            for inputs, labels in validation_loader:
+            for index, (inputs, labels) in enumerate(validation_loader):
                 inputs = inputs.to(self.device)
                 labels = labels.to(self.device)
 
                 validation_outs = model.validation_step(inputs, labels)
-                validation_epoch_outputs.append(validation_outs)
                 if is_overridden("validation_step_end", model):
                     validation_outs = model.validation_step_end(validation_outs)
 
                 if isinstance(validation_outs, Tensor):
-                    loss_list.append(validation_outs.detach().cpu().item())
+                    mean_loss = (mean_loss * index + validation_outs.detach().cpu().item()) / (index + 1)
                 elif isinstance(validation_outs, dict):
                     try:
-                        loss_list.append(validation_outs["loss"].detach().cpu().item())
+                        mean_loss = (mean_loss * index + validation_outs["loss"].detach().cpu().item()) / (index + 1)
                     except KeyError:
                         sys.stderr.write(
                             "\nif the validation outputs is a dictionary, it must has a key named 'loss'.\n")
                 else:
                     raise TypeError(f"\nthe validation_outs [{validation_outs}] is unable to compute the loss.\n")
 
-            if is_overridden("validation_epoch_end", model):
-                model.validation_epoch_end(validation_epoch_outputs)
-            validation_epoch_outputs.clear()
-
-            mean_loss = sum(loss_list) / len(loss_list)
-
             sys.stdout.write(
-                f"\r\33[36mEpoch {epoch:06d} {progress_bar(1, 1)} loss={mean_loss:.6f}\33[0m"
+                f"\r\33[36mEpoch {epoch:06d} {progress_bar(1, 1)} loss={mean_loss:.10f}\33[0m"
             )
             sys.stdout.flush()
 
@@ -143,7 +131,7 @@ class Trainer(object):
             if model.lr_scheduler is not None:
                 states_dict["lr_scheduler"] = model.lr_scheduler.state_dict()
 
-            torch.save(obj=states_dict, f=f"checkpoint_{epoch:06d}_{mean_loss:.6f}_temp.pth")
+            torch.save(obj=states_dict, f=f"checkpoint_{epoch:06d}_{mean_loss:.10f}_temp.pth")
 
         self.monitor.stop()
 
