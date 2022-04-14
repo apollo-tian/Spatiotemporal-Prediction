@@ -6,12 +6,19 @@
 import unittest
 
 from src.utils.data import MovingMNISTDataset
+from src.utils.data.KTHDataset import KTHDataset
 
 
 class TestDataset(unittest.TestCase):
 
     def test_MovingMNISTDataset(self):
         dataset = MovingMNISTDataset("train")
+        print(len(dataset))
+        print(dataset[0][0].shape)
+        print(dataset[0][0].max())
+
+    def test_KTHDataset(self):
+        dataset = KTHDataset("train")
         print(len(dataset))
         print(dataset[0][0].shape)
         print(dataset[0][0].max())
